@@ -1,23 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("🔹 app.js caricato, avvio codice...");
+
     const statusElement = document.getElementById("status");
     const logList = document.getElementById("log-list");
 
-    // 🔹 Configurazione Firebase
-    const firebaseConfig = {
-        databaseURL: "https://flexilift-db-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-
-    // 🔹 Inizializza Firebase SOLO SE non è già inizializzato
+    // 🔹 Verifichiamo se Firebase è attivo
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+        console.error("❌ Firebase non risulta inizializzato!");
+        statusElement.innerText = "Errore: Firebase non inizializzato";
+        return;
     }
+    console.log("✅ Firebase è inizializzato, procedo...");
 
     // 🔹 Riferimento al database
     const dbRef = firebase.database().ref("/sollevatore");
+    console.log("🔹 Riferimento /sollevatore creato:", dbRef);
 
     // 🔹 Funzione per aggiornare lo stato del sollevatore
     function aggiornaStato(snapshot) {
+        console.log("🔹 Dati ricevuti da Firebase:", snapshot.val());
         const data = snapshot.val();
+
         if (!data) {
             console.error("❌ Nessun dato ricevuto da Firebase");
             statusElement.innerText = "Errore nel recupero stato";
