@@ -2,11 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusElement = document.getElementById("status");
     const logList = document.getElementById("log-list");
 
-    // Inizializza Firebase
+    // Configurazione Firebase
     const firebaseConfig = {
         databaseURL: "https://flexilift-db-default-rtdb.europe-west1.firebasedatabase.app/"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    // Inizializza Firebase SOLO SE non è già inizializzato
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
 
     // Riferimento al database
     const dbRef = firebase.database().ref("/sollevatore");
@@ -14,11 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Funzione per aggiornare lo stato del sollevatore
     function aggiornaStato(snapshot) {
         const data = snapshot.val();
-        
+        if (!data) {
+            console.error("❌ Nessun dato ricevuto da Firebase");
+            return;
+        }
+
         // Aggiornamento UI
         statusElement.innerText = data.stato ? "🚗 Occupato" : "✅ Libero";
-        
-        // Formattazione corretta del timestamp
+
+        // Formattazione timestamp
         const dataFormattata = new Date(data.timestamp).toLocaleString();
 
         // Aggiorna storico
@@ -28,5 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Ascolta i cambiamenti in tempo reale
-    dbRef.on("value", aggiornaStato);
+    dbRef.on("value", aggiornaStato, (error) => {
+        console.error("Errore nel caricamento dati da Firebase:", error);
+        statusElement.innerText = "Errore nel recupero stato";
+    });
 });
