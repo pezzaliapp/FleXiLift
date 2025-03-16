@@ -1,31 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
     const statusElement = document.getElementById("status");
     const logList = document.getElementById("log-list");
-    const apiUrl = "api/sollevatore.json"; // URL del file JSON su GitHub Pages
+
+    // Inizializza Firebase
+    const firebaseConfig = {
+        databaseURL: "https://flexilift-db-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Riferimento al database
+    const dbRef = firebase.database().ref("/sollevatore");
 
     // Funzione per aggiornare lo stato del sollevatore
-    async function aggiornaStato() {
-        try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                throw new Error("Errore nel recupero dati");
-            }
-            const data = await response.json();
-            
-            // Aggiornamento UI
-            statusElement.innerText = data.sollevatore ? "🚗 Occupato" : "✅ Libero";
-            
-            // Aggiorna storico
-            const newLog = document.createElement("li");
-            newLog.innerText = `Stato: ${data.sollevatore ? "Occupato" : "Libero"} - ${new Date(data.timestamp * 1000).toLocaleString()}`;
-            logList.prepend(newLog);
-        } catch (error) {
-            console.error("Errore nel caricamento dati:", error);
-            statusElement.innerText = "Errore nel recupero stato";
-        }
+    function aggiornaStato(snapshot) {
+        const data = snapshot.val();
+        
+        // Aggiornamento UI
+        statusElement.innerText = data.stato ? "🚗 Occupato" : "✅ Libero";
+        
+        // Formattazione corretta del timestamp
+        const dataFormattata = new Date(data.timestamp).toLocaleString();
+
+        // Aggiorna storico
+        const newLog = document.createElement("li");
+        newLog.innerText = `Stato: ${data.stato ? "Occupato" : "Libero"} - ${dataFormattata}`;
+        logList.prepend(newLog);
     }
 
-    // Aggiornamento iniziale e ogni 5 secondi
-    aggiornaStato();
-    setInterval(aggiornaStato, 5000);
+    // Ascolta i cambiamenti in tempo reale
+    dbRef.on("value", aggiornaStato);
 });
