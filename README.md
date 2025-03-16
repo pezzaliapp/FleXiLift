@@ -7,6 +7,7 @@ FleXiLift è una Progressive Web App (PWA) che permette di monitorare in tempo r
 ✅ **PWA installabile su iOS/macOS** con supporto offline.  
 
 ## 📂 Struttura File
+```bash
 FleXiLift/
 │── index.html            # Dashboard PWA
 │── app.js                # Logica UI
