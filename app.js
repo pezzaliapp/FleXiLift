@@ -4,23 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusElement = document.getElementById("status");
     const logList = document.getElementById("log-list");
 
-    // 🔹 Verifichiamo se Firebase è attivo
+    // 🔹 Verifica se Firebase è stato inizializzato correttamente
     if (!firebase.apps.length) {
-        console.error("❌ Firebase non risulta inizializzato!");
-        statusElement.innerText = "Errore: Firebase non inizializzato";
+        console.error("❌ Firebase non è inizializzato! (app.js)");
+        statusElement.innerText = "Errore: Firebase non è inizializzato!";
         return;
+    } else {
+        console.log("✅ Firebase già inizializzato (app.js)");
     }
-    console.log("✅ Firebase è inizializzato, procedo...");
 
     // 🔹 Riferimento al database
     const dbRef = firebase.database().ref("/sollevatore");
-    console.log("🔹 Riferimento /sollevatore creato:", dbRef);
+    console.log("🔹 Riferimento creato /sollevatore:", dbRef);
 
     // 🔹 Funzione per aggiornare lo stato del sollevatore
     function aggiornaStato(snapshot) {
         console.log("🔹 Dati ricevuti da Firebase:", snapshot.val());
         const data = snapshot.val();
-
         if (!data) {
             console.error("❌ Nessun dato ricevuto da Firebase");
             statusElement.innerText = "Errore nel recupero stato";
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         statusElement.innerText = data.stato ? "🚗 Occupato" : "✅ Libero";
 
         // ✅ Formattazione timestamp
-        const dataFormattata = new Date(data.timestamp).toLocaleString();
+        const dataFormattata = new Date(data.timestamp).toLocaleString("it-IT");
 
         // ✅ Aggiorna storico
         const newLog = document.createElement("li");
@@ -40,8 +40,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 🔹 Ascolta i cambiamenti in tempo reale
-    dbRef.on("value", aggiornaStato, (error) => {
-        console.error("Errore nel caricamento dati da Firebase:", error);
-        statusElement.innerText = "Errore nel recupero stato";
-    });
+    dbRef.on("value",
+        (snapshot) => {
+            // Quando arrivano dati
+            aggiornaStato(snapshot);
+        },
+        (error) => {
+            // In caso di errore
+            console.error("Errore nel caricamento dati da Firebase:", error);
+            statusElement.innerText = "Errore nel recupero stato";
+        }
+    );
 });
