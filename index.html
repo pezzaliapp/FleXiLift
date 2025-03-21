@@ -1,59 +1,63 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FleXiLift - Monitoraggio Sollevatore</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FleXiLift - Monitoraggio Sollevatore</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
+  <!-- 🔹 Importa le versioni compat di Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-    <!-- 🔹 Importa le versioni compat di Firebase (niente errori di export) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- 🔹 Configurazione Firebase -->
+  <script>
+    console.log("⚙️ Inizializzazione Firebase da index.html...");
 
-    <!-- 🔹 Configurazione Firebase -->
-    <script>
-      console.log("⚙️ Inizializzazione Firebase da index.html...");
+    const firebaseConfig = {
+      databaseURL: "https://flexilift-db-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
 
-      const firebaseConfig = {
-        databaseURL: "https://flexilift-db-default-rtdb.europe-west1.firebasedatabase.app/"
-      };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log("✅ Firebase inizializzato (index.html)");
+    } else {
+      console.log("⚠️ Firebase era già inizializzato (index.html)");
+    }
+  </script>
 
-      // 🔹 Inizializza Firebase se non è già stato inizializzato
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-        console.log("✅ Firebase inizializzato (index.html)");
-      } else {
-        console.log("⚠️ Firebase era già inizializzato (index.html)");
-      }
-    </script>
-
-    <!-- 🔹 Il tuo script -->
-    <script defer src="app.js"></script>
+  <!-- 🔹 Il tuo script -->
+  <script defer src="app.js"></script>
 </head>
 <body>
-    <header>
-        <h1>FleXiLift</h1>
-        <p>Monitoraggio in tempo reale del sollevatore</p>
-    </header>
+  <header>
+    <h1>FleXiLift</h1>
+    <p>Monitoraggio in tempo reale del sollevatore</p>
+  </header>
+  
+  <main>
+    <div class="status-container">
+      <h2>Stato del Sollevatore:</h2>
+      <p id="status">Caricamento...</p>
+    </div>
+
+    <!-- Nuovo container per visualizzare l'altezza (distanza rilevata) -->
+    <div class="distance-container">
+      <h2>Altezza rilevata:</h2>
+      <p id="distance">Caricamento...</p>
+    </div>
     
-    <main>
-        <div class="status-container">
-            <h2>Stato del Sollevatore:</h2>
-            <p id="status">Caricamento...</p>
-        </div>
-        
-        <div class="log-container">
-            <h3>Storico sollevamenti</h3>
-            <ul id="log-list">
-                <li>Caricamento...</li>
-            </ul>
-        </div>
-    </main>
-    
-    <footer>
-        <p>&copy; 2025 FleXiLift - PezzaliAPP</p>
-    </footer>
+    <div class="log-container">
+      <h3>Storico sollevamenti</h3>
+      <ul id="log-list">
+        <li>Caricamento...</li>
+      </ul>
+    </div>
+  </main>
+  
+  <footer>
+    <p>&copy; 2025 FleXiLift - PezzaliAPP</p>
+  </footer>
 </body>
 </html>
