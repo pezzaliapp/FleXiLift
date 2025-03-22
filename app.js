@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const statusElement = document.getElementById("status");
   const logList = document.getElementById("log-list");
-  const distanceElement = document.getElementById("distance"); // Nuovo elemento per l'altezza
+  const distanceElement = document.getElementById("distance"); // Altezza dal suolo
 
-  // 🔹 Verifica se Firebase è stato inizializzato correttamente
+  // 🔹 Verifica inizializzazione Firebase
   if (!firebase.apps.length) {
     console.error("❌ Firebase non è inizializzato! (app.js)");
     statusElement.innerText = "Errore: Firebase non è inizializzato!";
@@ -18,43 +18,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const dbRef = firebase.database().ref("/sollevatore");
   console.log("🔹 Riferimento creato /sollevatore:", dbRef);
 
-  // 🔹 Funzione per aggiornare lo stato del sollevatore e l'altezza
+  // 🔹 Funzione per aggiornare interfaccia
   function aggiornaStato(snapshot) {
-    console.log("🔹 Dati ricevuti da Firebase:", snapshot.val());
     const data = snapshot.val();
+    console.log("🔹 Dati ricevuti da Firebase:", data);
+
     if (!data) {
-      console.error("❌ Nessun dato ricevuto da Firebase");
       statusElement.innerText = "Errore nel recupero stato";
       distanceElement.innerText = "Nessun dato distanza";
       return;
     }
 
-    // Aggiorna lo stato: Occupato o Libero
+    // Stato
     statusElement.innerText = data.stato ? "🚗 Occupato" : "✅ Libero";
 
-    // Aggiorna il campo per l'altezza (distanza)
-    if (typeof data.altezza !== "undefined") {
-      distanceElement.innerText = data.altezza + " cm";
-    } else {
-      distanceElement.innerText = "Nessun dato distanza";
-    }
+    // Altezza
+    distanceElement.innerText = typeof data.altezza !== "undefined"
+      ? data.altezza + " cm"
+      : "Nessun dato distanza";
 
-    // Formatta il timestamp
-    const dataFormattata = new Date(data.timestamp).toLocaleString("it-IT");
+    // Timestamp gestito in modo dinamico
+    const rawTimestamp = data.timestamp;
+    const timestamp = rawTimestamp < 10000000000 ? rawTimestamp * 1000 : rawTimestamp;
+    const dataFormattata = new Date(timestamp).toLocaleString("it-IT");
 
-    // Aggiorna lo storico
+    // Log
     const newLog = document.createElement("li");
     newLog.innerText = `Stato: ${data.stato ? "Occupato" : "Libero"} - ${dataFormattata}`;
     logList.prepend(newLog);
   }
 
-  // 🔹 Ascolta i cambiamenti in tempo reale
+  // 🔹 Ascolto in tempo reale
   dbRef.on("value",
-    (snapshot) => {
-      aggiornaStato(snapshot);
-    },
+    (snapshot) => aggiornaStato(snapshot),
     (error) => {
-      console.error("Errore nel caricamento dati da Firebase:", error);
+      console.error("Errore Firebase:", error);
       statusElement.innerText = "Errore nel recupero stato";
       distanceElement.innerText = "Errore nel recupero distanza";
     }
